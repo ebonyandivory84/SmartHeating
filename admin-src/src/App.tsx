@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   Alert,
   Box,
@@ -6,7 +6,6 @@ import {
   Card,
   CardContent,
   Chip,
-  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -39,8 +38,16 @@ import {
   Settings,
   Tune
 } from '@mui/icons-material';
-import { AdminConnection, DialogSelectID } from '@iobroker/adapter-react-v5';
-import { Theme } from '@iobroker/adapter-react-v5/build/Theme';
+import {
+  DialogSelectID,
+  GenericApp,
+  type AdminConnection,
+  type GenericAppProps,
+  type GenericAppState,
+  type IobTheme,
+  type ThemeName,
+  type ThemeType
+} from '@iobroker/adapter-react-v5';
 import ioPackage from '../../io-package.json';
 
 type NativeConfig = ioBroker.AdapterConfig;
@@ -116,35 +123,68 @@ const vcontroldFields: SignalField[] = [
   { key: 'vcontroldCompressorModulationState', label: 'Kompressor-Modulation lokal', group: 'vcontrold', description: 'Lokale Frequenz/Modulation.' }
 ];
 
-const getInstance = (): number => {
-  const query = new URLSearchParams(window.location.search);
-  const direct = Number(query.get('instance'));
-  if (Number.isInteger(direct)) return direct;
-  const match = window.location.pathname.match(/smartheating\.(\d+)/);
-  return match ? Number(match[1]) : 0;
-};
-
 const emptyDiagnostics: Diagnostics = {};
 
-export function App(): React.JSX.Element {
-  const instance = useMemo(getInstance, []);
-  const instanceId = `system.adapter.smartheating.${instance}`;
-  const adapterInstance = `smartheating.${instance}`;
-  const theme = useMemo(() => Theme('light'), []);
-  const [socket] = useState(() => new AdminConnection({
-    name: 'smartheating-admin',
-    protocol: window.location.protocol === 'https:' ? 'https:' : 'http:',
-    host: window.location.hostname,
-    port: window.location.port || (window.location.protocol === 'https:' ? '443' : '80'),
-    doNotLoadAllObjects: false
-  }));
-  const [config, setConfig] = useState<NativeConfig | null>(null);
-  const [instanceObject, setInstanceObject] = useState<ioBroker.InstanceObject | null>(null);
+export class App extends GenericApp<GenericAppProps, GenericAppState> {
+  constructor(props: GenericAppProps) {
+    super(props, {
+      adapterName: 'smartheating',
+      bottomButtons: false,
+      doNotLoadAllObjects: false
+    });
+  }
+
+  render(): React.JSX.Element {
+    if (!this.state.loaded) return super.render();
+
+    return (
+      <ThemeProvider theme={this.state.theme}>
+        <>
+          <SmartHeatingConfig
+            adapterInstance={`smartheating.${this.instance}`}
+            changed={this.state.changed}
+            config={this.state.native as NativeConfig}
+            onSave={() => this.onSave(false)}
+            onUpdate={(key, value) => this.updateNativeValue(String(key), value)}
+            socket={this.socket}
+            theme={this.state.theme}
+            themeName={this.state.themeName}
+            themeType={this.state.themeType}
+          />
+          {this.renderHelperDialogs()}
+        </>
+      </ThemeProvider>
+    );
+  }
+}
+
+interface SmartHeatingConfigProps {
+  adapterInstance: string;
+  changed: boolean;
+  config: NativeConfig;
+  onSave: () => void;
+  onUpdate: <K extends keyof NativeConfig>(key: K, value: NativeConfig[K]) => void;
+  socket: AdminConnection;
+  theme: IobTheme;
+  themeName: ThemeName;
+  themeType: ThemeType;
+}
+
+function SmartHeatingConfig({
+  adapterInstance,
+  changed,
+  config,
+  onSave,
+  onUpdate,
+  socket,
+  theme,
+  themeName,
+  themeType
+}: SmartHeatingConfigProps): React.JSX.Element {
   const [diagnostics, setDiagnostics] = useState<Diagnostics>(emptyDiagnostics);
   const [tab, setTab] = useState(0);
   const [picker, setPicker] = useState<{ key: keyof NativeConfig; multi: boolean } | null>(null);
   const [busy, setBusy] = useState(false);
-  const [dirty, setDirty] = useState(false);
   const [message, setMessage] = useState<{ severity: 'success' | 'warning' | 'error' | 'info'; text: string } | null>(null);
   const [historyDialog, setHistoryDialog] = useState(false);
   const [historyConfirmation, setHistoryConfirmation] = useState('');
@@ -159,53 +199,16 @@ export function App(): React.JSX.Element {
   }, [adapterInstance, socket]);
 
   useEffect(() => {
-    let active = true;
-    const preview = ['localhost', '127.0.0.1'].includes(window.location.hostname);
-    const objectRequest = socket.getObject(instanceId);
-    const loadRequest = preview
-      ? Promise.race([objectRequest, new Promise<null>(resolve => window.setTimeout(() => resolve(null), 1500))])
-      : objectRequest;
-    loadRequest.then(object => {
-      if (!active) return;
-      if (!object && preview) {
-        setConfig(ioPackage.native as unknown as NativeConfig);
-        setMessage({ severity: 'info', text: 'Lokaler UI-Preview mit io-package-Defaults; es besteht keine ioBroker-Verbindung.' });
-        return;
-      }
-      if (!active || !object || object.type !== 'instance') return;
-      const typed = object as ioBroker.InstanceObject;
-      setInstanceObject(typed);
-      setConfig(typed.native as unknown as NativeConfig);
-    }).catch(error => {
-      if (preview) {
-        setConfig(ioPackage.native as unknown as NativeConfig);
-        setMessage({ severity: 'info', text: 'Lokaler UI-Preview mit io-package-Defaults; es besteht keine ioBroker-Verbindung.' });
-      } else {
-        setMessage({ severity: 'error', text: `Konfiguration konnte nicht geladen werden: ${String(error)}` });
-      }
-    });
     void refreshDiagnostics();
-    return () => { active = false; };
-  }, [instanceId, refreshDiagnostics, socket]);
+  }, [refreshDiagnostics]);
 
   const update = <K extends keyof NativeConfig>(key: K, value: NativeConfig[K]): void => {
-    setConfig(current => current ? { ...current, [key]: value } : current);
-    setDirty(true);
+    onUpdate(key, value);
   };
 
-  const save = async (): Promise<void> => {
-    if (!config || !instanceObject) return;
-    setBusy(true);
-    try {
-      const updated = { ...instanceObject, native: config } as unknown as ioBroker.SettableObject;
-      await socket.setObject(instanceId, updated);
-      setDirty(false);
-      setMessage({ severity: 'success', text: 'Konfiguration gespeichert. Der Adapter wird die neuen Datenquellen beim nächsten Zyklus prüfen.' });
-    } catch (error) {
-      setMessage({ severity: 'error', text: `Speichern fehlgeschlagen: ${String(error)}` });
-    } finally {
-      setBusy(false);
-    }
+  const save = (): void => {
+    onSave();
+    setMessage({ severity: 'info', text: 'Konfiguration wird durch ioBroker gespeichert.' });
   };
 
   const runNow = async (): Promise<void> => {
@@ -236,10 +239,6 @@ export function App(): React.JSX.Element {
       setBusy(false);
     }
   };
-
-  if (!config) {
-    return <Box className="loading"><CircularProgress /><Typography>SmartHeating-Konfiguration wird geladen…</Typography></Box>;
-  }
 
   const score = diagnostics.readiness?.score ?? 0;
   const missingHistory = (diagnostics.history ?? []).filter(row => row.historyRequired && Boolean(row.stateId) && !row.historyEnabled);
@@ -282,7 +281,7 @@ export function App(): React.JSX.Element {
           </Stack>
           <Stack direction="row" spacing={1}>
             <Button startIcon={<PlayArrow />} variant="outlined" onClick={() => void runNow()} disabled={busy}>Neu prüfen</Button>
-            <Button startIcon={<Save />} variant="contained" onClick={() => void save()} disabled={busy || !dirty}>Speichern</Button>
+            <Button startIcon={<Save />} variant="contained" onClick={save} disabled={busy || !changed}>Speichern</Button>
           </Stack>
         </Box>
 
@@ -428,8 +427,8 @@ export function App(): React.JSX.Element {
           multiSelect={picker.multi}
           types="state"
           theme={theme}
-          themeName="light"
-          themeType="light"
+          themeName={themeName}
+          themeType={themeType}
           columns={['name', 'type', 'role', 'val']}
           onClose={() => setPicker(null)}
           onOk={selected => {

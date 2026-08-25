@@ -1,6 +1,6 @@
 {
   "name": "iobroker.smartheating",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Context-aware energy planner for heat pump, domestic hot water, PV and battery systems",
   "author": "ebonyandivory84",
   "license": "MIT",

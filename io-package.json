@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "smartheating",
-    "version": "0.1.4",
+    "version": "0.1.5",
     "news": {
+      "0.1.5": {
+        "en": "Load configuration through the official ioBroker Admin 7 GenericApp lifecycle",
+        "de": "Konfiguration über den offiziellen GenericApp-Lebenszyklus von ioBroker Admin 7 laden"
+      },
       "0.1.4": {
         "en": "Use the Admin 7 compatible React 18 and adapter-react-v5 configuration stack",
         "de": "Admin-7-kompatiblen React-18-/adapter-react-v5-Konfigurationsstack verwenden"
