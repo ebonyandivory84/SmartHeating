@@ -39,8 +39,8 @@ import {
   Settings,
   Tune
 } from '@mui/icons-material';
-import { AdminConnection, DialogSelectID } from '@iobroker/gui-components';
-import { Theme } from '@iobroker/gui-components/build/Theme';
+import { AdminConnection, DialogSelectID } from '@iobroker/adapter-react-v5';
+import { Theme } from '@iobroker/adapter-react-v5/build/Theme';
 import ioPackage from '../../io-package.json';
 
 type NativeConfig = ioBroker.AdapterConfig;
@@ -130,7 +130,7 @@ export function App(): React.JSX.Element {
   const instance = useMemo(getInstance, []);
   const instanceId = `system.adapter.smartheating.${instance}`;
   const adapterInstance = `smartheating.${instance}`;
-  const theme = useMemo(() => Theme('modernLight'), []);
+  const theme = useMemo(() => Theme('light'), []);
   const [socket] = useState(() => new AdminConnection({
     name: 'smartheating-admin',
     protocol: window.location.protocol === 'https:' ? 'https:' : 'http:',
@@ -428,7 +428,7 @@ export function App(): React.JSX.Element {
           multiSelect={picker.multi}
           types="state"
           theme={theme}
-          themeName="modernLight"
+          themeName="light"
           themeType="light"
           columns={['name', 'type', 'role', 'val']}
           onClose={() => setPicker(null)}
