@@ -52,7 +52,7 @@ Unbekannte vcontrold-IDs werden nicht geraten und sind deshalb standardmäßig l
 
 ## Entwicklung
 
-Erforderlich ist Node.js 22 oder neuer.
+Erforderlich ist Node.js 20.19 oder neuer. Damit läuft der Adapter auf der vorhandenen ioBroker-LTS-Laufzeit; Entwicklung und Release werden zusätzlich unter Node.js 22 und 24 geprüft.
 
 ```bash
 npm install

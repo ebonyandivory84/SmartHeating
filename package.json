@@ -13,7 +13,7 @@
     "url": "https://github.com/ebonyandivory84/SmartHeating/issues"
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=20.19.0"
   },
   "main": "build/main.js",
   "files": [
