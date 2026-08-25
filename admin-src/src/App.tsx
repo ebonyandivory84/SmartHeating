@@ -399,7 +399,9 @@ function SmartHeatingConfig({
               <NumberSetting label="Mindest-Heizzeit" unit="min" value={config.minimumHeatingMinutes} onChange={value => update('minimumHeatingMinutes', value)} />
               <NumberSetting label="Recency-Halbwertszeit" unit="Tage" value={config.recencyHalfLifeDays} onChange={value => update('recencyHalfLifeDays', value)} />
               <NumberSetting label="Mindest-Lernstichproben" unit="Ereignisse" value={config.minimumLearningSamples} onChange={value => update('minimumLearningSamples', value)} />
+              <NumberSetting label="Dashboard-Port" unit="TCP" value={config.port} step={1} onChange={value => update('port', value)} />
             </Box>
+            <Alert severity="info">Eine Änderung des Dashboard-Ports wird nach dem Speichern und Neustart der Adapterinstanz wirksam.</Alert>
             <FormControl><InputLabel>Betriebsart</InputLabel><Select label="Betriebsart" value={config.operationMode} onChange={event => update('operationMode', event.target.value as NativeConfig['operationMode'])}><MenuItem value="observe">Observe – nur Datenqualität</MenuItem><MenuItem value="shadow">Shadow – planen und vergleichen, nicht schalten</MenuItem></Select></FormControl>
             <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}><Switch checked={config.learningEnabled} onChange={event => update('learningEnabled', event.target.checked)} /><Typography>Kontextabhängige Lernvorschläge berechnen (keine automatische Promotion)</Typography></Stack>
           </Stack>}

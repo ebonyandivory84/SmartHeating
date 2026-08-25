@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "smartheating",
-    "version": "0.1.6",
+    "version": "0.1.7",
     "news": {
+      "0.1.7": {
+        "en": "Serve the dashboard from a dedicated read-only adapter endpoint without websocket dependencies",
+        "de": "Dashboard über einen eigenen read-only Adapter-Endpunkt ohne Websocket-Abhängigkeit ausliefern"
+      },
       "0.1.6": {
         "en": "Add dark scrollable settings, complete project documentation and a read-only dashboard link",
         "de": "Dunkle scrollbare Einstellungen, vollständige Projektdokumentation und read-only Dashboard-Link ergänzen"
@@ -67,7 +71,7 @@
     },
     "localLinks": {
       "dashboard": {
-        "link": "%web_protocol%://%ip%:%web_port%/adapter/smartheating/dashboard.html?instance=smartheating.%instance%",
+        "link": "%protocol%://%ip%:%port%/?instance=smartheating.%instance%",
         "name": {
           "de": "SmartHeating-Dashboard öffnen",
           "en": "Open SmartHeating dashboard"
@@ -91,6 +95,7 @@
     "operationMode": "observe",
     "scheduleIntervalMinutes": 15,
     "planningHorizonHours": 36,
+    "port": 8097,
     "influxInstance": "influxdb.0",
     "historyLookbackDays": 30,
     "expertMode": false,
