@@ -161,8 +161,11 @@ export function App(): React.JSX.Element {
   useEffect(() => {
     let active = true;
     const preview = ['localhost', '127.0.0.1'].includes(window.location.hostname);
-    const timeout = new Promise<null>(resolve => window.setTimeout(() => resolve(null), 1500));
-    Promise.race([socket.getObject(instanceId), timeout]).then(object => {
+    const objectRequest = socket.getObject(instanceId);
+    const loadRequest = preview
+      ? Promise.race([objectRequest, new Promise<null>(resolve => window.setTimeout(() => resolve(null), 1500))])
+      : objectRequest;
+    loadRequest.then(object => {
       if (!active) return;
       if (!object && preview) {
         setConfig(ioPackage.native as unknown as NativeConfig);

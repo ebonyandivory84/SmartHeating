@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "smartheating",
-    "version": "0.1.2",
+    "version": "0.1.3",
     "news": {
+      "0.1.3": {
+        "en": "Fix loading adapter configuration on real ioBroker admin connections",
+        "de": "Laden der Adapterkonfiguration auf realen ioBroker-Admin-Verbindungen korrigieren"
+      },
       "0.1.2": {
         "en": "Exclude deliberately unmapped optional vcontrold signals from the missing-history action list",
         "de": "Bewusst noch nicht gemappte optionale vcontrold-Signale aus der Liste aktivierbarer Historisierungen ausschließen"

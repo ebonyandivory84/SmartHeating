@@ -85,7 +85,7 @@ class SmartHeating extends utils.Adapter {
             if (message.command === 'getDiagnostics') {
                 const diagnostics = {
                     generatedAt: new Date().toISOString(),
-                    adapter: { version: this.version ?? '0.1.2', mode: this.config.operationMode, executionAuthorized: false },
+                    adapter: { version: this.version ?? '0.1.3', mode: this.config.operationMode, executionAuthorized: false },
                     readiness: this.lastReadiness,
                     history: this.lastHistoryMatrix,
                     context: this.lastContext,
