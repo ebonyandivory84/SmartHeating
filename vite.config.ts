@@ -11,7 +11,10 @@ export default defineConfig({
     emptyOutDir: true,
     sourcemap: false,
     rollupOptions: {
-      input: resolve(__dirname, "admin-src/index_m.html")
+      input: {
+        index_m: resolve(__dirname, "admin-src/index_m.html"),
+        dashboard: resolve(__dirname, "admin-src/dashboard.html")
+      }
     }
   },
   server: {

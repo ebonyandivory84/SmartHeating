@@ -1,6 +1,6 @@
 {
   "name": "iobroker.smartheating",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Context-aware energy planner for heat pump, domestic hot water, PV and battery systems",
   "author": "ebonyandivory84",
   "license": "MIT",
@@ -21,10 +21,11 @@
     "build/",
     "io-package.json",
     "LICENSE",
-    "README.md"
+    "README.md",
+    "PROJECT_DOCUMENTATION.md"
   ],
   "scripts": {
-    "clean": "rimraf build build-test admin/assets admin/index_m.html",
+    "clean": "rimraf build build-test admin/assets admin/index_m.html admin/dashboard.html",
     "build:backend": "tsc -p tsconfig.build.json",
     "build:tests": "rimraf build-test && tsc -p tsconfig.test.json",
     "build:admin": "vite build",

@@ -1,5 +1,7 @@
 # ioBroker.smartheating
 
+Die vollständige und kanonische Projektdokumentation befindet sich in [`PROJECT_DOCUMENTATION.md`](PROJECT_DOCUMENTATION.md).
+
 SmartHeating ist ein zentraler, empirisch lernender EnergyPlanner für eine Viessmann Vitocal 200 in Verbindung mit PV-Anlage und Batteriespeicher. Der Adapter arbeitet in der ersten Version ausschließlich im `Observe`- oder `Shadow`-Modus: Er prüft Datenqualität, Historisierung und Modellreife, erstellt einen erklärbaren 24–36-Stunden-Plan und vergleicht ihn später mit dem bestehenden Zeitplan. Produktive Heizungs-, Batterie- oder Viessmann-States werden nicht beschrieben.
 
 ## Grundprinzip

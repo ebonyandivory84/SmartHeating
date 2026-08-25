@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "smartheating",
-    "version": "0.1.5",
+    "version": "0.1.6",
     "news": {
+      "0.1.6": {
+        "en": "Add dark scrollable settings, complete project documentation and a read-only dashboard link",
+        "de": "Dunkle scrollbare Einstellungen, vollständige Projektdokumentation und read-only Dashboard-Link ergänzen"
+      },
       "0.1.5": {
         "en": "Load configuration through the official ioBroker Admin 7 GenericApp lifecycle",
         "de": "Konfiguration über den offiziellen GenericApp-Lebenszyklus von ioBroker Admin 7 laden"
@@ -56,6 +60,26 @@
     "messagebox": true,
     "adminUI": {
       "config": "materialize"
+    },
+    "docs": {
+      "de": "PROJECT_DOCUMENTATION.md",
+      "en": "PROJECT_DOCUMENTATION.md"
+    },
+    "localLinks": {
+      "dashboard": {
+        "link": "%web_protocol%://%ip%:%web_port%/adapter/smartheating/dashboard.html?instance=smartheating.%instance%",
+        "name": {
+          "de": "SmartHeating-Dashboard öffnen",
+          "en": "Open SmartHeating dashboard"
+        },
+        "description": {
+          "de": "Read-only Übersicht für Planung, Lernen, Datenqualität und vcontrold-Migration",
+          "en": "Read-only overview of planning, learning, data quality and vcontrold migration"
+        },
+        "icon": "smartheating.svg",
+        "intro": true,
+        "order": 10
+      }
     },
     "dependencies": [
       {

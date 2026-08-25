@@ -48,6 +48,7 @@ import {
   type ThemeName,
   type ThemeType
 } from '@iobroker/adapter-react-v5';
+import { Theme } from '@iobroker/adapter-react-v5/build/Theme';
 import ioPackage from '../../io-package.json';
 
 type NativeConfig = ioBroker.AdapterConfig;
@@ -132,6 +133,10 @@ export class App extends GenericApp<GenericAppProps, GenericAppState> {
       bottomButtons: false,
       doNotLoadAllObjects: false
     });
+  }
+
+  createTheme(): IobTheme {
+    return Theme('dark');
   }
 
   render(): React.JSX.Element {
@@ -269,7 +274,6 @@ function SmartHeatingConfig({
   };
 
   return (
-    <ThemeProvider theme={theme}>
       <Box className="app-shell">
         <Box className="topbar">
           <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
@@ -288,7 +292,7 @@ function SmartHeatingConfig({
         {message && <Alert severity={message.severity} onClose={() => setMessage(null)}>{message.text}</Alert>}
         <Alert severity="info">Version {ioPackage.common.version} erzeugt ausschließlich Empfehlungen, Status- und Audit-States. Externe Viessmann-, Batterie- oder Heizungs-States werden nie automatisch beschrieben.</Alert>
 
-        <Tabs value={tab} onChange={(_, value: number) => setTab(value)} variant="scrollable" scrollButtons="auto">
+        <Tabs className="main-tabs" value={tab} onChange={(_, value: number) => setTab(value)} variant="scrollable" scrollButtons="auto">
           <Tab icon={<CheckCircle />} iconPosition="start" label="Übersicht" />
           <Tab icon={<DataObject />} iconPosition="start" label="Datenquellen" />
           <Tab icon={<History />} iconPosition="start" label="InfluxDB" />
@@ -452,7 +456,6 @@ function SmartHeatingConfig({
           <DialogActions><Button onClick={() => setHistoryDialog(false)}>Abbrechen</Button><Button color="warning" variant="contained" disabled={historyConfirmation !== 'SMARTHEATING_ENABLE_INFLUX'} onClick={() => void enableMissingHistory()}>Historisierung aktivieren</Button></DialogActions>
         </Dialog>
       </Box>
-    </ThemeProvider>
   );
 }
 

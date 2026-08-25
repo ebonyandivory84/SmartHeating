@@ -70,7 +70,7 @@ export class SmartHeating extends utils.Adapter {
       if (message.command === 'getDiagnostics') {
         const diagnostics: Diagnostics = {
           generatedAt: new Date().toISOString(),
-          adapter: { version: this.version ?? '0.1.5', mode: this.config.operationMode, executionAuthorized: false },
+          adapter: { version: this.version ?? '0.1.6', mode: this.config.operationMode, executionAuthorized: false },
           readiness: this.lastReadiness,
           history: this.lastHistoryMatrix,
           context: this.lastContext,
