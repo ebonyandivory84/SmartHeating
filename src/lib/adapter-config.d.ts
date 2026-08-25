@@ -4,7 +4,6 @@ declare global {
       operationMode: 'observe' | 'shadow';
       scheduleIntervalMinutes: number;
       planningHorizonHours: number;
-      port: number;
       influxInstance: string;
       historyLookbackDays: number;
       expertMode: boolean;

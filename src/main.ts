@@ -1,7 +1,4 @@
 import * as utils from '@iobroker/adapter-core';
-import * as fs from 'node:fs/promises';
-import * as http from 'node:http';
-import * as path from 'node:path';
 import { classifyRegimes } from './lib/contextModel';
 import { HISTORICAL_ONLY_SIGNALS, SIGNAL_DEFINITIONS, VCONTROLD_SIGNALS } from './lib/defaultSignals';
 import { buildPlan, parseForecast } from './lib/planner';
@@ -37,7 +34,6 @@ interface Diagnostics {
 
 export class SmartHeating extends utils.Adapter {
   private timer: ReturnType<typeof setInterval> | undefined;
-  private dashboardServer: http.Server | undefined;
   private running = false;
   private lastContext: ContextSnapshot | null = null;
   private lastPlan: unknown = null;
@@ -59,21 +55,13 @@ export class SmartHeating extends utils.Adapter {
       this.log.warn('controlEnabled is ignored in version 0.1.0: productive control is intentionally unavailable.');
     }
     await this.runCycle('startup');
-    await this.startDashboardServer();
     const intervalMinutes = Math.max(1, Number(this.config.scheduleIntervalMinutes) || 15);
     this.timer = setInterval(() => void this.runCycle('rolling_horizon'), intervalMinutes * 60_000);
   }
 
   private onUnload(callback: () => void): void {
     if (this.timer) clearInterval(this.timer);
-    const closeDashboard = new Promise<void>(resolve => {
-      if (!this.dashboardServer?.listening) {
-        resolve();
-        return;
-      }
-      this.dashboardServer.close(() => resolve());
-    });
-    void closeDashboard.then(() => this.setStateAsync('info.connection', false, true)).finally(callback);
+    void this.setStateAsync('info.connection', false, true).finally(callback);
   }
 
   private async onMessage(message: ioBroker.Message): Promise<void> {
@@ -117,94 +105,13 @@ export class SmartHeating extends utils.Adapter {
   private buildDiagnostics(): Diagnostics {
     return {
       generatedAt: new Date().toISOString(),
-      adapter: { version: this.version ?? '0.1.7', mode: this.config.operationMode, executionAuthorized: false },
+      adapter: { version: this.version ?? '0.1.8', mode: this.config.operationMode, executionAuthorized: false },
       readiness: this.lastReadiness,
       history: this.lastHistoryMatrix,
       context: this.lastContext,
       plan: this.lastPlan,
       vcontrold: this.buildVcontroldStatus()
     };
-  }
-
-  private buildDashboardPayload(): Record<string, unknown> {
-    const context = this.lastContext;
-    return {
-      diagnostics: this.buildDiagnostics(),
-      dataQuality: context ? this.buildQualityReport(this.lastHistoryMatrix, context) : null,
-      regimes: context ? classifyRegimes(context) : [],
-      learningStatus: this.buildLearningStatus(this.lastHistoryMatrix),
-      learnedParameters: this.initialLearnedParameters(),
-      optimizationEvidence: this.buildOptimizationEvidence(),
-      drift: { detected: false, reason: 'Noch keine abgeschlossenen Online-Lernereignisse im Adapter', automaticAdjustment: false },
-      auditTimeline: this.auditEntries
-    };
-  }
-
-  private async startDashboardServer(): Promise<void> {
-    const port = Math.min(65_535, Math.max(1, Number(this.config.port) || 8097));
-    this.dashboardServer = http.createServer((request, response) => {
-      void this.handleDashboardRequest(request, response).catch(error => {
-        const text = error instanceof Error ? error.message : String(error);
-        this.log.warn(`Dashboard request failed: ${text}`);
-        if (!response.headersSent) response.writeHead(500, { 'Content-Type': 'text/plain; charset=utf-8' });
-        response.end('Dashboard request failed');
-      });
-    });
-    await new Promise<void>((resolve, reject) => {
-      const server = this.dashboardServer!;
-      const onError = (error: Error): void => reject(error);
-      server.once('error', onError);
-      server.listen(port, '0.0.0.0', () => {
-        server.off('error', onError);
-        resolve();
-      });
-    });
-    this.log.info(`Read-only dashboard listening on port ${port}`);
-  }
-
-  private async handleDashboardRequest(request: http.IncomingMessage, response: http.ServerResponse): Promise<void> {
-    const url = new URL(request.url ?? '/', `http://${request.headers.host ?? 'localhost'}`);
-    response.setHeader('X-Content-Type-Options', 'nosniff');
-    response.setHeader('Referrer-Policy', 'no-referrer');
-    response.setHeader('Content-Security-Policy', "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'");
-
-    if (url.pathname === '/api/diagnostics') {
-      response.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
-      response.end(JSON.stringify(this.buildDashboardPayload()));
-      return;
-    }
-
-    const requestedFile = url.pathname === '/' ? 'dashboard.html' : decodeURIComponent(url.pathname).replace(/^\/+/, '');
-    const allowed = requestedFile === 'dashboard.html' || requestedFile === 'smartheating.svg' || /^assets\/[A-Za-z0-9._-]+\.(?:js|css)$/.test(requestedFile);
-    if (!allowed) {
-      response.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
-      response.end('Not found');
-      return;
-    }
-
-    const adminRoot = path.resolve(__dirname, '..', 'admin');
-    const filePath = path.resolve(adminRoot, requestedFile);
-    if (filePath !== adminRoot && !filePath.startsWith(`${adminRoot}${path.sep}`)) {
-      response.writeHead(403, { 'Content-Type': 'text/plain; charset=utf-8' });
-      response.end('Forbidden');
-      return;
-    }
-
-    try {
-      const content = await fs.readFile(filePath);
-      const extension = path.extname(filePath);
-      const contentType = extension === '.html' ? 'text/html; charset=utf-8'
-        : extension === '.js' ? 'application/javascript; charset=utf-8'
-          : extension === '.css' ? 'text/css; charset=utf-8'
-            : extension === '.svg' ? 'image/svg+xml'
-              : 'application/octet-stream';
-      response.writeHead(200, { 'Content-Type': contentType, 'Cache-Control': extension === '.html' ? 'no-cache' : 'public, max-age=31536000, immutable' });
-      response.end(content);
-    } catch (error) {
-      const code = (error as NodeJS.ErrnoException).code;
-      response.writeHead(code === 'ENOENT' ? 404 : 500, { 'Content-Type': 'text/plain; charset=utf-8' });
-      response.end(code === 'ENOENT' ? 'Not found' : 'Read error');
-    }
   }
 
   private async runCycle(trigger: string): Promise<void> {

@@ -12,8 +12,15 @@ import {
   ThemeProvider,
   Typography
 } from '@mui/material';
-import { createTheme } from '@mui/material/styles';
 import { AccountTree, AutoGraph, CloudSync, History, Refresh, Shield } from '@mui/icons-material';
+import {
+  GenericApp,
+  type AdminConnection,
+  type GenericAppProps,
+  type GenericAppState,
+  type IobTheme
+} from '@iobroker/adapter-react-v5';
+import { Theme } from '@iobroker/adapter-react-v5/build/Theme';
 import ioPackage from '../../io-package.json';
 
 interface HistoryRow {
@@ -71,36 +78,66 @@ interface DashboardData {
   auditTimeline: unknown;
 }
 
-const dashboardTheme = createTheme({
-  palette: {
-    mode: 'dark',
-    primary: { main: '#7ee2b8' },
-    background: { default: '#050505', paper: '#101010' }
+export class DashboardApp extends GenericApp<GenericAppProps, GenericAppState> {
+  constructor(props: GenericAppProps) {
+    super(props, {
+      adapterName: 'smartheating',
+      bottomButtons: false,
+      doNotLoadAllObjects: true
+    });
   }
-});
 
-export function DashboardApp({ adapterInstance }: { adapterInstance: string }): React.JSX.Element {
-  return <ThemeProvider theme={dashboardTheme}><Dashboard adapterInstance={adapterInstance} /></ThemeProvider>;
+  createTheme(): IobTheme {
+    return Theme('dark');
+  }
+
+  render(): React.JSX.Element {
+    if (!this.state.loaded) return super.render();
+
+    return (
+      <ThemeProvider theme={this.state.theme}>
+        <Dashboard socket={this.socket} adapterInstance={`smartheating.${this.instance}`} />
+      </ThemeProvider>
+    );
+  }
 }
 
-function Dashboard({ adapterInstance }: { adapterInstance: string }): React.JSX.Element {
+function Dashboard({ socket, adapterInstance }: { socket: AdminConnection; adapterInstance: string }): React.JSX.Element {
   const [data, setData] = useState<DashboardData | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
+  const readJsonState = useCallback(async (suffix: string): Promise<unknown> => {
+    const state = await socket.getState(`${adapterInstance}.${suffix}`);
+    if (typeof state?.val !== 'string') return state?.val ?? null;
+    try {
+      return JSON.parse(state.val);
+    } catch {
+      return state.val;
+    }
+  }, [adapterInstance, socket]);
+
   const refresh = useCallback(async (): Promise<void> => {
     setBusy(true);
     try {
-      const response = await fetch('/api/diagnostics', { cache: 'no-store' });
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      setData(await response.json() as DashboardData);
+      const [diagnostics, dataQuality, regimes, learningStatus, learnedParameters, optimizationEvidence, drift, auditTimeline] = await Promise.all([
+        socket.sendTo<Diagnostics>(adapterInstance, 'getDiagnostics', {}),
+        readJsonState('status.dataQuality'),
+        readJsonState('context.regimes'),
+        readJsonState('learning.status'),
+        readJsonState('learning.learnedParameters'),
+        readJsonState('learning.optimizationEvidence'),
+        readJsonState('learning.drift'),
+        readJsonState('audit.timeline')
+      ]);
+      setData({ diagnostics: diagnostics ?? {}, dataQuality, regimes, learningStatus, learnedParameters, optimizationEvidence, drift, auditTimeline });
       setError('');
     } catch (reason) {
       setError(`Dashboard-Daten konnten nicht geladen werden: ${String(reason)}`);
     } finally {
       setBusy(false);
     }
-  }, []);
+  }, [adapterInstance, readJsonState, socket]);
 
   useEffect(() => {
     void refresh();

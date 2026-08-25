@@ -9,6 +9,6 @@ const instance = instanceMatch ? Number(instanceMatch[1]) : 0;
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <DashboardApp adapterInstance={`smartheating.${instance}`} />
+    <DashboardApp instance={instance} />
   </React.StrictMode>
 );

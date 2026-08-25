@@ -2,7 +2,7 @@
 
 Stand: 25. August 2026
 
-Zielversion dieses Stands: 0.1.7
+Zielversion dieses Stands: 0.1.8
 
 Repository: `ebonyandivory84/SmartHeating`
 
@@ -53,7 +53,7 @@ Analyse → Backtest → Shadow Mode → Champion/Challenger → ausdrückliche 
 - Node.js auf ioBroker: 20.19.2
 - InfluxDB-Instanz: `influxdb.0`
 - SmartHeating-Instanz: `smartheating.0`
-- read-only Dashboard-Port: 8097
+- Dashboard über den bestehenden ioBroker-Admin auf Port 8081
 - Adapterentwicklung: TypeScript, React 18, Material UI 6 und `@iobroker/adapter-react-v5` 7.7.1
 
 Zugangsdaten, private Schlüssel und Secrets gehören nicht in das Repository.
@@ -312,7 +312,7 @@ Die Datenpunktfelder verwenden den ioBroker-Objektbrowser. Bekannte Datenpunkte 
 
 ### 12.2 Separates Dashboard
 
-Ab Version 0.1.7 liefert der Adapter das read-only Dashboard über einen eigenen HTTP-Endpunkt auf Port 8097 aus. Dadurch benötigt die Anzeige weder eine Admin-Sitzung noch eine separate Websocket-Verbindung. In der ioBroker-Instanzliste erscheint über `common.localLinks` ein anklickbares SmartHeating-Dashboard-Symbol.
+Ab Version 0.1.8 wird das read-only Dashboard über den bestehenden ioBroker-Admin auf Port 8081 geöffnet und verwendet dessen Anmeldung und Socket-Verbindung. Es wird kein zusätzlicher Netzwerkport geöffnet. In der ioBroker-Instanzliste erscheint über `common.localLinks` ein anklickbares SmartHeating-Dashboard-Symbol.
 
 Das Dashboard zeigt:
 
@@ -405,6 +405,7 @@ Zusätzlich werden Backend und Adminoberflächen mit TypeScript geprüft und üb
 - 0.1.5: offizieller ioBroker-`GenericApp`-Lebenszyklus für die Konfiguration
 - 0.1.6: dunkle scrollbare Einstellungen, zentrales Projektdokument und separates Dashboard mit Instanzlisten-Link
 - 0.1.7: eigener read-only Dashboard-Endpunkt ohne Websocket-Abhängigkeit
+- 0.1.8: Dashboard auf den vorhandenen authentifizierten ioBroker-Admin zurückgeführt; kein zusätzlicher offener Port
 
 ## 17. Bekannte Grenzen und nächste Schritte
 
