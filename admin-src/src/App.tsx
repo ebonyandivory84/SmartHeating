@@ -239,7 +239,7 @@ export function App(): React.JSX.Element {
   }
 
   const score = diagnostics.readiness?.score ?? 0;
-  const missingHistory = (diagnostics.history ?? []).filter(row => row.historyRequired && !row.historyEnabled);
+  const missingHistory = (diagnostics.history ?? []).filter(row => row.historyRequired && Boolean(row.stateId) && !row.historyEnabled);
   const renderSignalRows = (fields: SignalField[]) => {
     const groups = [...new Set(fields.map(field => field.group))];
     return groups.map(group => (

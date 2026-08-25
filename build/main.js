@@ -85,7 +85,7 @@ class SmartHeating extends utils.Adapter {
             if (message.command === 'getDiagnostics') {
                 const diagnostics = {
                     generatedAt: new Date().toISOString(),
-                    adapter: { version: this.version ?? '0.1.1', mode: this.config.operationMode, executionAuthorized: false },
+                    adapter: { version: this.version ?? '0.1.2', mode: this.config.operationMode, executionAuthorized: false },
                     readiness: this.lastReadiness,
                     history: this.lastHistoryMatrix,
                     context: this.lastContext,
@@ -375,8 +375,9 @@ class SmartHeating extends utils.Adapter {
         };
     }
     buildLearningStatus(health) {
-        const historicalReady = health.filter(item => item.historyRequired && item.historyEnabled && item.historyReadable).length;
-        const historicalTotal = health.filter(item => item.historyRequired).length;
+        const configuredHistory = health.filter(item => item.historyRequired && Boolean(item.stateId));
+        const historicalReady = configuredHistory.filter(item => item.historyEnabled && item.historyReadable).length;
+        const historicalTotal = configuredHistory.length;
         return {
             enabled: this.config.learningEnabled,
             mode: 'bounded_contextual_learning',

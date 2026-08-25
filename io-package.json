@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "smartheating",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "news": {
+      "0.1.2": {
+        "en": "Exclude deliberately unmapped optional vcontrold signals from the missing-history action list",
+        "de": "Bewusst noch nicht gemappte optionale vcontrold-Signale aus der Liste aktivierbarer Historisierungen ausschließen"
+      },
       "0.1.1": {
         "en": "Declare adapter states as instance objects and support the installed Node.js 20 LTS runtime",
         "de": "Adapter-States korrekt als Instanzobjekte deklarieren und die installierte Node.js-20-LTS-Laufzeit unterstützen"
