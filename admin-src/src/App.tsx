@@ -284,7 +284,7 @@ export function App(): React.JSX.Element {
         </Box>
 
         {message && <Alert severity={message.severity} onClose={() => setMessage(null)}>{message.text}</Alert>}
-        <Alert severity="info">Version 0.1.0 erzeugt ausschließlich Empfehlungen, Status- und Audit-States. Externe Viessmann-, Batterie- oder Heizungs-States werden nie automatisch beschrieben.</Alert>
+        <Alert severity="info">Version {ioPackage.common.version} erzeugt ausschließlich Empfehlungen, Status- und Audit-States. Externe Viessmann-, Batterie- oder Heizungs-States werden nie automatisch beschrieben.</Alert>
 
         <Tabs value={tab} onChange={(_, value: number) => setTab(value)} variant="scrollable" scrollButtons="auto">
           <Tab icon={<CheckCircle />} iconPosition="start" label="Übersicht" />

@@ -1,7 +1,17 @@
 {
   "common": {
     "name": "smartheating",
-    "version": "0.1.0",
+    "version": "0.1.1",
+    "news": {
+      "0.1.1": {
+        "en": "Declare adapter states as instance objects and support the installed Node.js 20 LTS runtime",
+        "de": "Adapter-States korrekt als Instanzobjekte deklarieren und die installierte Node.js-20-LTS-Laufzeit unterstützen"
+      },
+      "0.1.0": {
+        "en": "Initial observe/shadow release with contextual planning and InfluxDB readiness matrix",
+        "de": "Erste Observe-/Shadow-Version mit kontextabhängiger Planung und InfluxDB-Readiness-Matrix"
+      }
+    },
     "titleLang": {
       "en": "Smart Heating",
       "de": "Smart Heating"
@@ -114,7 +124,7 @@
     "vcontroldElectricHeaterPowerState": "",
     "vcontroldCompressorModulationState": ""
   },
-  "objects": [
+  "instanceObjects": [
     { "_id": "info.connection", "type": "state", "common": { "name": "Adapter connected", "type": "boolean", "role": "indicator.connected", "read": true, "write": false, "def": false }, "native": {} },
     { "_id": "status.readinessScore", "type": "state", "common": { "name": "Readiness score", "type": "number", "role": "value", "unit": "%", "read": true, "write": false, "min": 0, "max": 100 }, "native": {} },
     { "_id": "status.summary", "type": "state", "common": { "name": "Readiness summary", "type": "string", "role": "json", "read": true, "write": false }, "native": {} },
