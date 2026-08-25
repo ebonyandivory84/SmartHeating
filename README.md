@@ -37,6 +37,8 @@ Die Admin-Oberfläche zeigt für jeden benötigten Datenpunkt:
 - ob die konfigurierte InfluxDB-Custom-Konfiguration aktiv ist;
 - ob ein `getHistory`-Rücklesetest funktioniert.
 
+Beim Öffnen und Aktualisieren der Einstellungen wird diese Matrix direkt neu eingelesen. Manuell im Objektbrowser aktivierte InfluxDB-Konfigurationen werden damit ohne Wartezeit bis zum nächsten Planungszyklus erkannt.
+
 Das Aktivieren fehlender Historisierung ist absichtlich eine gesonderte, ausdrücklich zu bestätigende Aktion. Der Adapter verändert keine fremde Objektkonfiguration allein durch Start oder Speichern. Forecast-Snapshots und deren Ausgabezeit müssen gemeinsam historisiert werden, damit Backtests keine zukünftigen Ist-Werte als vermeintlichen Forecast verwenden.
 
 ## vcontrold-Migration

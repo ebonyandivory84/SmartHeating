@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "smartheating",
-    "version": "0.1.8",
+    "version": "0.1.9",
     "news": {
+      "0.1.9": {
+        "en": "Refresh the InfluxDB readiness matrix when settings diagnostics are loaded",
+        "de": "InfluxDB-Readiness-Matrix beim Laden der Einstellungsdiagnose aktualisieren"
+      },
       "0.1.8": {
         "en": "Open the read-only dashboard inside the existing authenticated ioBroker Admin service",
         "de": "Read-only Dashboard über den bestehenden authentifizierten ioBroker-Admin öffnen"

@@ -196,7 +196,7 @@ function SmartHeatingConfig({
 
   const refreshDiagnostics = useCallback(async () => {
     try {
-      const result = await socket.sendTo<Diagnostics>(adapterInstance, 'getDiagnostics', {});
+      const result = await socket.sendTo<Diagnostics>(adapterInstance, 'getDiagnostics', { refreshHistory: true });
       setDiagnostics(result ?? emptyDiagnostics);
     } catch {
       setDiagnostics(emptyDiagnostics);

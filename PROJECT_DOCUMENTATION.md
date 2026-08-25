@@ -2,7 +2,9 @@
 
 Stand: 25. August 2026
 
-Zielversion dieses Stands: 0.1.8
+Zielversion dieses Stands: 0.1.9
+
+Änderung in 0.1.9: Beim Öffnen oder manuellen Aktualisieren der Einstellungen liest der Adapter die InfluxDB-Objektkonfiguration erneut ein. Nach einer außerhalb von SmartHeating vorgenommenen Aktivierung zeigt die Oberfläche daher nicht mehr bis zum nächsten planmäßigen 15-Minuten-Zyklus den veralteten Status „Historisierung fehlt“ an. Der Rücklesetest und die Readiness-Matrix werden dabei ebenfalls aktualisiert, ohne einen neuen Planungs- oder Audit-Zyklus auszulösen.
 
 Repository: `ebonyandivory84/SmartHeating`
 

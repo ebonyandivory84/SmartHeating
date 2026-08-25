@@ -68,6 +68,10 @@ export class SmartHeating extends utils.Adapter {
     if (!message.callback) return;
     try {
       if (message.command === 'getDiagnostics') {
+        const payload = (message.message ?? {}) as { refreshHistory?: boolean };
+        if (payload.refreshHistory && !this.running) {
+          await this.refreshHistoryDiagnostics();
+        }
         this.sendTo(message.from, message.command, this.buildDiagnostics(), message.callback);
         return;
       }
@@ -112,6 +116,18 @@ export class SmartHeating extends utils.Adapter {
       plan: this.lastPlan,
       vcontrold: this.buildVcontroldStatus()
     };
+  }
+
+  private async refreshHistoryDiagnostics(): Promise<void> {
+    const health = await this.inspectSignals();
+    const readiness = this.calculateReadiness(health);
+    this.lastHistoryMatrix = health;
+    this.lastReadiness = readiness;
+    await Promise.all([
+      this.setStateAsync('status.readinessScore', readiness.score, true),
+      this.setStateAsync('status.summary', JSON.stringify(readiness), true),
+      this.setStateAsync('status.historyMatrix', JSON.stringify(health), true)
+    ]);
   }
 
   private async runCycle(trigger: string): Promise<void> {
